@@ -52,6 +52,12 @@ const questions = [
   },
 ];
 
+type Answer = {
+  answerText: string;
+  isCorrect: boolean;
+  id: number;
+};
+
 export default function Quizz() {
   const [started, setStarted] = useState<boolean>(false);
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
@@ -73,7 +79,7 @@ export default function Quizz() {
     setIsCorrect(null);
   };
 
-  const handleAnswer = (answer) => {
+  const handleAnswer = (answer:Answer) => {
     setSelectedAnswer(answer.id);
     const isCurrentCorrect = answer.isCorrect;
     if (isCurrentCorrect) {
@@ -111,10 +117,11 @@ export default function Quizz() {
             <h2 className="text-3xl font-bold">
               {questions[currentQuestion].questionText}
             </h2>
-            <div className="grid grid-cols-1 gap-2 mt-4">
+            <div className="grid grid-cols-1 gap-6 mt-4">
               {questions[currentQuestion].answers.map((answer) => (
                 <Button
-                  variant={"secondary"}
+                  variant={"neoOutline"}
+                  size={"xl"}
                   key={answer.id}
                   onClick={() => handleAnswer(answer)}
                 >
@@ -131,10 +138,10 @@ export default function Quizz() {
           correctAnswer={
             questions[currentQuestion].answers.find(
               (answer) => answer.isCorrect === true
-            )?.answerText
+            )?.answerText || "Correct answer not found"
           }
         />
-        <Button onClick={handleNext}>{!started ? "Start" : "Next"}</Button>
+        <Button variant={"neo"} onClick={handleNext}>{!started ? "Start" : "Next"}</Button>
       </footer>
     </div>
   );
