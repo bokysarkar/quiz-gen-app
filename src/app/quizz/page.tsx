@@ -5,6 +5,7 @@ import { ChevronLeft, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProgressBar from "@/components/ui/progressBar";
 import ResultCard from "./ResultCard";
+import QuizzSubmission from "./QuizzSubmission";
 
 const questions = [
   {
@@ -64,6 +65,7 @@ export default function Quizz() {
   const [score, setScore] = useState<number>(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [submitted, setSubmitted] = useState<boolean>(false);
 
   const handleNext = () => {
     if (!started) {
@@ -73,13 +75,16 @@ export default function Quizz() {
 
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion((currentQuestion) => currentQuestion + 1);
+    } else {
+      setSubmitted(true);
+      return;
     }
 
     setSelectedAnswer(null);
     setIsCorrect(null);
   };
 
-  const handleAnswer = (answer:Answer) => {
+  const handleAnswer = (answer: Answer) => {
     setSelectedAnswer(answer.id);
     const isCurrentCorrect = answer.isCorrect;
     if (isCurrentCorrect) {
@@ -87,6 +92,12 @@ export default function Quizz() {
     }
     setIsCorrect(isCurrentCorrect);
   };
+
+  const scorePercentage = Math.round((score/questions.length)*100)
+
+  if (submitted) {
+    return <QuizzSubmission score={score} scorePercentage={scorePercentage} totalQuestions={questions.length} />
+  }
 
   return (
     <div className="flex flex-col flex-1 mt-6">
@@ -118,16 +129,24 @@ export default function Quizz() {
               {questions[currentQuestion].questionText}
             </h2>
             <div className="grid grid-cols-1 gap-6 mt-4">
-              {questions[currentQuestion].answers.map((answer) => (
-                <Button
-                  variant={"neoOutline"}
-                  size={"xl"}
-                  key={answer.id}
-                  onClick={() => handleAnswer(answer)}
-                >
-                  {answer.answerText}
-                </Button>
-              ))}
+              {questions[currentQuestion].answers.map((answer) => {
+                const variant =
+                  selectedAnswer === answer.id
+                    ? answer.isCorrect
+                      ? "neoSuccess"
+                      : "neoDanger"
+                    : "neoOutline";
+                return (
+                  <Button
+                    variant={variant} // Use the calculated variant
+                    size={"xl"}
+                    key={answer.id}
+                    onClick={() => handleAnswer(answer)}
+                  >
+                    <p className="whitespace-normal">{answer.answerText}</p>
+                  </Button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -141,7 +160,16 @@ export default function Quizz() {
             )?.answerText || "Correct answer not found"
           }
         />
-        <Button variant={"neo"} onClick={handleNext}>{!started ? "Start" : "Next"}</Button>
+        <Button
+          variant={"neo"}
+          onClick={handleNext}
+        >
+          {!started
+            ? "Start"
+            : currentQuestion === questions.length - 1
+            ? "Submit"
+            : "Next"}
+        </Button>
       </footer>
     </div>
   );
