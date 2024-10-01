@@ -4,6 +4,7 @@ import { ChatOpenAI } from "@langchain/openai"; // manages coversations between 
 import { HumanMessage } from "@langchain/core/messages"; // encapsulates the human message content, making it easy to send and manage
 import { JsonOutputFunctionsParser } from "langchain/output_parsers"; // parses the OpenAI API responses that are formatted as JSON
 import { PDFLoader } from "langchain/document_loaders/fs/pdf"; // load and extract text from a PDF file
+import saveQuizz from "./saveToDb";
 
 export async function POST(req: NextRequest) {
   const body = await req.formData();
@@ -91,8 +92,10 @@ export async function POST(req: NextRequest) {
     const result = await runnable.invoke([message]); // invokes the binded model i.e., runnable otherwise, model.invoke
     console.log(result);
 
+    const { quizzId } = await saveQuizz(result.quizz);
+
     return NextResponse.json(
-      { message: "created successfully" },
+      { quizzId },
       { status: 200 }
     );
   } catch (e: any) {
