@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 function UploadDoc() {
@@ -8,6 +9,7 @@ function UploadDoc() {
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,7 +26,10 @@ function UploadDoc() {
         body: formData,
       });
       if (res.status === 200) {
-        console.log("quizz generated successfully!");
+        const data = await res.json();
+        const quizzId = data.quizzId;
+
+        router.push(`/quizz/${quizzId}`);
       }
     } catch (e: any) {
       console.log("error while generating content", e);
@@ -34,36 +39,40 @@ function UploadDoc() {
 
   return (
     <div className="w-full">
-      <form
-        action=""
-        className="w-full"
-        onSubmit={handleSubmit}
-      >
-        <label
-          htmlFor="document"
-          className="bg-secondary w-full flex h-20 rounded-md border-4 border-dashed border-blue-900 relative"
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <form
+          action=""
+          className="w-full"
+          onSubmit={handleSubmit}
         >
-          <div className="absolute inset-0 m-auto flex justify-center items-center">
-            {document && document instanceof File
-              ? document.name
-              : "Drag a document."}
-          </div>
-          <input
-            type="file"
-            id="document"
-            className="relative block w-full h-full z-50 opacity-0"
-            onChange={(e) => setDocument(e?.target?.files?.[0])}
-          />
-        </label>
-        {error ? <p className="text-red-500">{error}</p> : null}
-        <Button
-          size={"lg"}
-          className="mt-2"
-          type="submit"
-        >
-          Upload File
-        </Button>
-      </form>
+          <label
+            htmlFor="document"
+            className="bg-secondary w-full flex h-20 rounded-md border-4 border-dashed border-blue-900 relative"
+          >
+            <div className="absolute inset-0 m-auto flex justify-center items-center">
+              {document && document instanceof File
+                ? document.name
+                : "Drag a document."}
+            </div>
+            <input
+              type="file"
+              id="document"
+              className="relative block w-full h-full z-50 opacity-0"
+              onChange={(e) => setDocument(e?.target?.files?.[0])}
+            />
+          </label>
+          {error ? <p className="text-red-500">{error}</p> : null}
+          <Button
+            size={"lg"}
+            className="mt-2"
+            type="submit"
+          >
+            Upload File
+          </Button>
+        </form>
+      )}
     </div>
   );
 }

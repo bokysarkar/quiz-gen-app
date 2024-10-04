@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
       ],
     });
 
-    const result = await runnable.invoke([message]); // invokes the binded model i.e., runnable otherwise, model.invoke
+    const result:any = await runnable.invoke([message]); // invokes the binded model i.e., runnable otherwise, model.invoke
     console.log(result);
 
     const { quizzId } = await saveQuizz(result.quizz);
